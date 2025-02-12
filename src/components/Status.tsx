@@ -10,6 +10,7 @@ const Status: React.FC<StatusProps> = ({ completed }) => (
       background: completed ? "green" : "red",
       borderRadius: "8px",
       padding: "8px",
+      color:'white'
     }}
   >
     {completed ? "Complete" : "Pending"}
