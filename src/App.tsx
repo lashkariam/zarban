@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import TaskList from "./components/TaskList";
+import FilterControls from "./components/FilterControls";
+import Loading from "./components/Loading";
+import Error from "./components/Error";
+import { Task, FilterType } from "./types";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<FilterType>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    axios
+      .get<Task[]>("https://jsonplaceholder.typicode.com/todos")
+      .then((response) => {
+        setTasks(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+  const toggleCompletion = (id: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+
+  if (loading) return <Loading />;
+  if (error) return <Error message={error} />;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="app">
+      <h1 style={{textAlign:'center'}}>Zarban Task Manager</h1>
+      <FilterControls
+        filter={filter}
+        setFilter={setFilter}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+      <TaskList toggleCompletion={toggleCompletion} tasks={tasks} filter={filter} searchTerm={searchTerm} />
+    </div>
+  );
+};
 
-export default App
+export default App;
