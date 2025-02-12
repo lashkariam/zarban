@@ -1,5 +1,6 @@
 import React from "react";
 import { Task, FilterType } from "../types";
+import Status from "./Status";
 
 interface TaskListProps {
   tasks: Task[];
@@ -42,7 +43,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 }}
               >
                 <h3>{task.title}</h3>
-                <div>{task.completed ? "✅" : "❌"}</div>
+                <Status completed={task.completed} />
               </div>
               <button
                 style={{ background: task.completed ? "red" : "green" }}
